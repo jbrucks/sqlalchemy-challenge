@@ -40,8 +40,8 @@ def welcome():
         f"/api/v1.0/precipitation<br/>"
         f"/api/v1.0/stations<br/>"
         f"/api/v1.0/tobs<br/>"
-        f"/api/v1.0/<start><br/>"
-        f"/api/v1.0/<start>/<end><br/>"
+        f"/api/v1.0/yyyy-mm-dd - supply start date in form shown<br/>"
+        f"/api/v1.0/yyyy-mm-dd/yyyy-mm-dd - supply start and end date in form shown<br/>"
     )
 
 
@@ -100,7 +100,7 @@ def temperature():
         temp_dict['temperature'] = temperature
         year_temp_dict.append(temp_dict)
 
-    return jsonify(year_temp_df)
+    return jsonify(year_temp_dict)
 
 app.route("/api/v1.0/<start>")
 def startTemp(start):
@@ -114,7 +114,15 @@ def startTemp(start):
 
     session.close()
 
-    return jsonify(results)
+    temp_by_start = []
+    for minimum, average, maximum in results:
+        start_dict = {}
+        start_dict['minimum'] = minimum
+        start_dict['average'] = average
+        start_dict['maximum'] = maximum
+        temp_by_start.append(start_dict)
+
+    return jsonify(temp_by_start)
 
 app.route("/api/v1.0/<start>/<end>")
 def startEndTemp(start, end):
@@ -128,9 +136,15 @@ def startEndTemp(start, end):
 
     session.close()
     
-    temps_dates = list(np.ravel(results))
+    temp_by_range = []
+    for minimum, average, maximum in results:
+        range_dict = {}
+        range_dict['minimum'] = minimum
+        range_dict['average'] = average
+        range_dict['maximum'] = maximum
+        temp_by_range.append(range_dict)
 
-    return jsonify(temps_dates)
+    return jsonify(temp_by_range)
 
 if __name__ == '__main__':
     app.run(debug=True)
